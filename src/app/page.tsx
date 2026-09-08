@@ -1,32 +1,64 @@
+const pipeline = [
+  ["Suppliers found", "0"], ["Qualified", "0"], ["RFQs sent", "0"], ["Offers received", "0"],
+  ["Compliant", "0"], ["Samples", "0"], ["Negotiating", "0"], ["Recommended", "0"],
+];
+
+const stages = ["Requirement", "Discovery", "Qualification", "RFQ", "Quotation", "Compliance", "Negotiation", "Sample", "Landed Cost", "Decision"];
+
 export default function HomePage() {
   return (
-    <main>
-      <h1>INA Sourcing Agent</h1>
-      <p>Standalone procurement intelligence platform for supplier discovery, RFQs, technical compliance, negotiation, samples, and landed-cost comparison.</p>
+    <main className="shell">
+      <header className="topbar">
+        <div>
+          <p className="eyebrow">INA SMART · PROCUREMENT INTELLIGENCE</p>
+          <h1>Sourcing Command Center</h1>
+          <p className="muted">One workflow for equipment, materials, electronics, machinery, consumables and custom manufacturing.</p>
+        </div>
+        <button className="primary">+ New sourcing request</button>
+      </header>
 
-      <section className="card">
-        <h2>Phase 1 foundation</h2>
-        <div className="grid">
-          {[
-            ["Requirements", "RFQ-ready technical specifications"],
-            ["Suppliers", "Factory and contact intelligence"],
-            ["Quotations", "Commercial offer normalization"],
-            ["Compliance", "Line-by-line technical evaluation"],
-            ["Negotiation", "Price/MOQ/lead-time history"],
-            ["Landed cost", "Qatar final-cost comparison"],
-          ].map(([title, text]) => (
-            <div className="metric" key={title}>
-              <strong>{title}</strong>
-              <p>{text}</p>
-            </div>
-          ))}
+      <section className="request card">
+        <div className="requestHead">
+          <div><span className="status">READY</span><h2>Active sourcing request</h2></div>
+          <div className="actions"><button>Pause</button><button>Export</button><button className="primary">Run sourcing</button></div>
+        </div>
+        <div className="requestGrid">
+          <label>Product<input placeholder="e.g. CAT6 cable, CNC machine, robotics kit" /></label>
+          <label>Quantity<input placeholder="500" /></label>
+          <label>Destination<input defaultValue="Doha, Qatar" /></label>
+          <label>Target Incoterm<select defaultValue="FOB"><option>EXW</option><option>FOB</option><option>CIF</option><option>DDP</option></select></label>
         </div>
       </section>
 
-      <section className="card">
-        <h2>Safety rule</h2>
-        <p>A cheaper offer that changes a required specification is recorded as a deviation, never silently accepted as equivalent.</p>
+      <section className="metrics">
+        {pipeline.map(([label,value]) => <div className="metric card" key={label}><span>{label}</span><strong>{value}</strong></div>)}
       </section>
+
+      <section className="card">
+        <div className="sectionHead"><div><h2>Procurement pipeline</h2><p className="muted">Live progress from technical requirement to approved supplier.</p></div><span className="pill">Human approval gates enabled</span></div>
+        <div className="stages">{stages.map((stage,i)=><div className="stage" key={stage}><b>{i+1}</b><span>{stage}</span></div>)}</div>
+      </section>
+
+      <div className="twoCol">
+        <section className="card">
+          <div className="sectionHead"><h2>Supplier comparison</h2><button>View all</button></div>
+          <div className="tableWrap"><table><thead><tr><th>Supplier</th><th>Type</th><th>Compliance</th><th>Unit</th><th>Landed</th><th>Lead</th><th>Score</th></tr></thead><tbody><tr><td colSpan={7} className="empty">No supplier offers yet. Run sourcing to begin discovery.</td></tr></tbody></table></div>
+        </section>
+        <section className="card">
+          <h2>Agent control</h2>
+          <div className="control"><span>Supplier search</span><b>Autonomous</b></div>
+          <div className="control"><span>RFQ & clarification</span><b>Autonomous</b></div>
+          <div className="control"><span>Price / MOQ negotiation</span><b>Autonomous</b></div>
+          <div className="control warning"><span>Specification deviation</span><b>Approval</b></div>
+          <div className="control warning"><span>Sample payment</span><b>Approval</b></div>
+          <div className="control danger"><span>PO / payment</span><b>Locked</b></div>
+        </section>
+      </div>
+
+      <div className="twoCol">
+        <section className="card"><h2>Technical compliance</h2><p className="muted">Mandatory requirements are hard gates. A cheaper non-compliant substitute cannot win the recommendation.</p><div className="emptyBox">Select a quotation to see line-by-line requested vs offered specifications.</div></section>
+        <section className="card"><h2>Activity & negotiation</h2><p className="muted">Every supplier message, quotation revision, price movement and agent action is auditable.</p><div className="emptyBox">No activity recorded for this request.</div></section>
+      </div>
     </main>
   );
 }
