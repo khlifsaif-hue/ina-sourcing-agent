@@ -1,0 +1,14 @@
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f6f7f9;
+  color: #111827;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 1100px; margin: 0 auto; padding: 48px 24px; }
+.card { background: white; border: 1px solid #e5e7eb; border-radius: 14px; padding: 24px; margin-top: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 14px; }
+.metric { background:#f9fafb; border-radius:10px; padding:16px; }
+h1,h2 { margin-top: 0; }
+code { background:#f3f4f6; padding:2px 6px; border-radius:6px; }

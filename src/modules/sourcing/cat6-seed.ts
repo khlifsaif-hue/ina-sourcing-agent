@@ -1,0 +1,35 @@
+export const cat6InitialRequests = [
+  {
+    title: "CAT6 U/UTP 23AWG Bare Copper, Double FRPVC",
+    targetQuantity: 500,
+    recurring: true,
+    specs: [
+      ["Category", "CAT6"],
+      ["Construction", "U/UTP"],
+      ["Conductor", "23AWG Solid Bare Copper"],
+      ["Pairs", "4 pairs"],
+      ["Jacket", "Double Jacket FRPVC"],
+      ["Frequency", "250MHz"],
+      ["Length", "305m"],
+      ["Standards", "TIA/ISO/IEC compatible"],
+      ["PoE", "Compatible"],
+    ],
+  },
+  {
+    title: "CAT6 S/FTP 23AWG Bare Copper, Armoured, Double Jacket",
+    targetQuantity: 200,
+    recurring: true,
+    specs: [
+      ["Category", "CAT6"],
+      ["Construction", "S/FTP"],
+      ["Conductor", "23AWG Solid Bare Copper"],
+      ["Pair Shielding", "Individual foil"],
+      ["Braid", "40% tinned-copper braid"],
+      ["Armour", "ECCS steel-tape armour"],
+      ["Inner Jacket", "PVC"],
+      ["Outer Jacket", "UV-stabilized PE"],
+      ["OD", "12.6 ± 1.5 mm"],
+      ["Length", "305m"],
+    ],
+  },
+] as const;
