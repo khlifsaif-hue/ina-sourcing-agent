@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const pipeline = [
   ["Suppliers found", "0"], ["Qualified", "0"], ["RFQs sent", "0"], ["Offers received", "0"],
   ["Compliant", "0"], ["Samples", "0"], ["Negotiating", "0"], ["Recommended", "0"],
@@ -14,7 +16,7 @@ export default function HomePage() {
           <h1>Sourcing Command Center</h1>
           <p className="muted">One workflow for equipment, materials, electronics, machinery, consumables and custom manufacturing.</p>
         </div>
-        <button className="primary" disabled>+ New sourcing request</button>
+        <Link className="primary buttonLink" href="/sourcing">+ New sourcing request</Link>
       </header>
 
       <section className="request card">

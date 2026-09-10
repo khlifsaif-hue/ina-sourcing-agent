@@ -104,6 +104,12 @@ change with what was tested, where it was saved and whether it was deployed.
     rejects a Google account that does not exactly match the selected sender
     email. It exposes status only—never token values. This is deliberately not
     yet email delivery or inbox processing.
+13. Added a fast sourcing workspace at `/sourcing`. It provides reusable
+    templates, source-channel selection (Alibaba, Made-in-China, Global
+    Sources, IndiaMART, direct sites and Google/Bing), quantity/unit/currency/
+    Incoterm controls, lead-time and verified-factory filters, and a
+    deterministic search-plan preview. It is intentionally a preparation UI
+    until browser authentication and the bounded search runner are connected.
 
 Security references:
 - https://nextjs.org/blog/CVE-2025-66478
@@ -184,6 +190,9 @@ Validation completed on 10 September 2026:
 - Gmail OAuth credentials are configured in Netlify, but no mailbox consent has
   been completed and no email has been sent. The agent is not yet end-to-end
   ready until the platform OAuth flow and authenticated UI are exercised.
+- The `/sourcing` workspace is included in the reviewed source and passes the
+  build, lint, typecheck and regression suite; it still needs a new deployment
+  after this UI addition.
 
 Until that reviewed source is deployed and its integrations are exercised, the
 live agent remains incomplete. Core unit tests do not establish Gmail delivery,
