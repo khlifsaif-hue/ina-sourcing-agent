@@ -170,6 +170,21 @@ Validation completed on 10 September 2026:
 - These source changes have not been deployed. The live observations above
   continue to describe the deployment inspected in this audit.
 
+## Latest deployment milestone — 10 September 2026
+
+- Both additive migrations were validated on disposable Neon branches and
+  applied to production branch `br-quiet-shape-b1o27py9`.
+- Production deploy `6aa2e35835b58513a9f7a6b9` is ready at
+  `https://ina-sourcing-agent.netlify.app` (Next.js server handler deployed;
+  Netlify secret scan found no committed secrets).
+- The deploy was uploaded from the reviewed local source because the Netlify
+  site is not connected to a Git commit; the exact uploaded source is recorded
+  by the reviewed branch `audit/readiness-2026-09-10` and commit
+  `ecb72d9` locally / its corresponding GitHub branch head.
+- Gmail OAuth credentials are configured in Netlify, but no mailbox consent has
+  been completed and no email has been sent. The agent is not yet end-to-end
+  ready until the platform OAuth flow and authenticated UI are exercised.
+
 Until that reviewed source is deployed and its integrations are exercised, the
 live agent remains incomplete. Core unit tests do not establish Gmail delivery,
 translation quality, source authenticity, runtime database connectivity or full
