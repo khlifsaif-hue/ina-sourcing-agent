@@ -1,5 +1,5 @@
 -- Apply only after 0001_sender_profiles.sql, on a disposable Neon branch first.
--- OAuth state is short-lived; access and refresh tokens are encrypted by the app.
+-- OAuth state is short-lived. Access and refresh tokens are encrypted by the app.
 CREATE TABLE "gmail_oauth_states" (
   "id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
   "sender_profile_id" uuid NOT NULL REFERENCES "sender_profiles"("id") ON DELETE cascade,
