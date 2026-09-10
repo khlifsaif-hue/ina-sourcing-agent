@@ -190,9 +190,9 @@ Validation completed on 10 September 2026:
 - Gmail OAuth credentials are configured in Netlify, but no mailbox consent has
   been completed and no email has been sent. The agent is not yet end-to-end
   ready until the platform OAuth flow and authenticated UI are exercised.
-- The `/sourcing` workspace is included in the reviewed source and passes the
-  build, lint, typecheck and regression suite; it still needs a new deployment
-  after this UI addition.
+- The `/sourcing` workspace is included in production deploy
+  `6aa2e7f4db67f300b524b460` and is available at
+  `https://ina-sourcing-agent.netlify.app/sourcing`.
 
 Until that reviewed source is deployed and its integrations are exercised, the
 live agent remains incomplete. Core unit tests do not establish Gmail delivery,
