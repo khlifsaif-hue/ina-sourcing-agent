@@ -25,6 +25,26 @@ export const senderProfiles = pgTable("sender_profiles", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
+export const gmailOauthStates = pgTable("gmail_oauth_states", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  senderProfileId: uuid("sender_profile_id").notNull().references(() => senderProfiles.id, { onDelete: "cascade" }),
+  stateHash: text("state_hash").notNull().unique(),
+  codeVerifierCiphertext: text("code_verifier_ciphertext").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  consumedAt: timestamp("consumed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+export const gmailCredentials = pgTable("gmail_credentials", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  senderProfileId: uuid("sender_profile_id").notNull().unique().references(() => senderProfiles.id, { onDelete: "cascade" }),
+  gmailEmail: text("gmail_email").notNull(),
+  encryptedAccessToken: text("encrypted_access_token").notNull(),
+  encryptedRefreshToken: text("encrypted_refresh_token").notNull(),
+  tokenExpiresAt: timestamp("token_expires_at", { withTimezone: true }),
+  grantedScopes: jsonb("granted_scopes").$type<string[]>().notNull().default([]),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
 export const supplierContacts = pgTable("supplier_contacts", { id: uuid("id").defaultRandom().primaryKey(), supplierId: uuid("supplier_id").notNull().references(() => suppliers.id, { onDelete: "cascade" }), name: text("name"), title: text("title"), email: text("email"), phone: text("phone"), wechat: text("wechat"), whatsapp: text("whatsapp"), isPrimary: boolean("is_primary").notNull().default(false) });
 export const rfqs = pgTable("rfqs", { id: uuid("id").defaultRandom().primaryKey(), sourcingRequestId: uuid("sourcing_request_id").notNull().references(() => sourcingRequests.id, { onDelete: "cascade" }), reference: text("reference").notNull().unique(), incotermRequested: text("incoterm_requested").notNull().default("FOB"), paymentTermsRequested: text("payment_terms_requested"), sampleRequested: boolean("sample_requested").notNull().default(true), createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull() });
 export const rfqSuppliers = pgTable("rfq_suppliers", { id: uuid("id").defaultRandom().primaryKey(), rfqId: uuid("rfq_id").notNull().references(() => rfqs.id, { onDelete: "cascade" }), supplierId: uuid("supplier_id").notNull().references(() => suppliers.id, { onDelete: "cascade" }), sentAt: timestamp("sent_at", { withTimezone: true }), status: text("status").notNull().default("planned") }, (t) => [unique().on(t.rfqId, t.supplierId)]);

@@ -4,6 +4,8 @@ import { checkApiAccess } from "../src/lib/api-access.ts";
 import { GET as listRequests, POST as createRequest } from "../src/app/api/sourcing-requests/route.ts";
 import { POST as qualifyCandidates } from "../src/app/api/supplier-discovery/route.ts";
 import { GET as getSenderProfile, PUT as putSenderProfile } from "../src/app/api/settings/sender-profile/route.ts";
+import { POST as startGmail } from "../src/app/api/integrations/gmail/start/route.ts";
+import { GET as gmailStatus } from "../src/app/api/integrations/gmail/status/route.ts";
 
 const token = "test-only-credential-012345678901234567890";
 const request = (path, body, authorized = true) => new Request(`https://agent.example/api/${path}`, {
@@ -30,6 +32,8 @@ test("data APIs authenticate before database configuration is evaluated", async 
     assert.equal((await qualifyCandidates(request("supplier-discovery", "{}", false))).status, 401);
     assert.equal((await getSenderProfile(new Request("https://agent.example/api/settings/sender-profile"))).status, 401);
     assert.equal((await putSenderProfile(request("settings/sender-profile", "{}", false))).status, 401);
+    assert.equal((await startGmail(request("integrations/gmail/start", "{}", false))).status, 401);
+    assert.equal((await gmailStatus(new Request("https://agent.example/api/integrations/gmail/status"))).status, 401);
   } finally {
     if (previousToken === undefined) delete process.env.SOURCING_API_TOKEN; else process.env.SOURCING_API_TOKEN = previousToken;
     if (previousDb === undefined) delete process.env.DATABASE_URL; else process.env.DATABASE_URL = previousDb;

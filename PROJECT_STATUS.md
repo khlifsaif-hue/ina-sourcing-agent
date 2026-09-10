@@ -98,6 +98,12 @@ change with what was tested, where it was saved and whether it was deployed.
     The available connected Gmail profile was verified as `saif@ibtechar.com`.
     That ChatGPT connector is not automatically transferable to the deployed
     platform.
+12. Added a server-side Gmail OAuth authorization layer: an administrator selects
+    a sender profile, Google consent uses a short-lived hashed state and PKCE,
+    and access/refresh tokens are AES-256-GCM encrypted at rest. The callback
+    rejects a Google account that does not exactly match the selected sender
+    email. It exposes status only—never token values. This is deliberately not
+    yet email delivery or inbox processing.
 
 Security references:
 - https://nextjs.org/blog/CVE-2025-66478
@@ -110,7 +116,7 @@ Security references:
 2. Implement one bounded, source-backed search provider behind the existing
    `SupplierSearchProvider`. Add a request execution endpoint, durable job state,
    idempotency and audited persistence. Reuse existing orchestrator modules.
-3. Implement translation and Gmail OAuth, sending from the established identity
+3. Implement translation and Gmail delivery/inbound processing, sending from the established identity
    selected in the platform. The first intended sender profile is
    `saif@ibtechar.com`; later it may be changed to an INA Smart account.
    Preserve originals and technical literals. The user's connected Gmail in
@@ -150,10 +156,12 @@ Validation completed on 10 September 2026:
 
 - `npm run lint`: passed.
 - `npm test`: 18 passed, zero failed.
-- Sender-profile update validation: 19 tests passed, zero failed; lint and build
-  passed; `npm audit --omit=dev` remained clear. An additive database migration
-  is staged at `drizzle/0001_sender_profiles.sql` and has not been applied to
-  production.
+- Sender profile and Gmail authorization validation: 21 tests passed, zero
+  failed. Two additive migrations are staged at `drizzle/0001_sender_profiles.sql`
+  and `drizzle/0002_gmail_oauth_credentials.sql`; neither has been applied to
+  production. Gmail requires server-side `GMAIL_CLIENT_ID`,
+  `GMAIL_CLIENT_SECRET`, `GMAIL_TOKEN_ENCRYPTION_KEY` and `APP_URL` before a
+  live consent flow can begin.
 - `npm run build`: passed, including TypeScript checks, without database secrets.
 - `npm audit --omit=dev`: zero reported production dependency vulnerabilities.
 - `git diff --check`: passed.
