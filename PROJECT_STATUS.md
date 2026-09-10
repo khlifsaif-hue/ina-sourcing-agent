@@ -95,9 +95,9 @@ change with what was tested, where it was saved and whether it was deployed.
     active sender can be changed later without code changes. It stores display
     identity only; Gmail OAuth credentials are deliberately separate and no
     inbound/outbound email is enabled until that connection is authorized.
-    The available connected Gmail profile was verified as `saif@ibtechar.com`.
-    That ChatGPT connector is not automatically transferable to the deployed
-    platform.
+    The initial platform sender is now `info@inasmart.com`. The previously
+    connected Ibtechar Gmail account is not used by this project and is not
+    transferable to the deployed platform.
 12. Added a server-side Gmail OAuth authorization layer: an administrator selects
     a sender profile, Google consent uses a short-lived hashed state and PKCE,
     and access/refresh tokens are AES-256-GCM encrypted at rest. The callback
@@ -118,7 +118,7 @@ Security references:
    idempotency and audited persistence. Reuse existing orchestrator modules.
 3. Implement translation and Gmail delivery/inbound processing, sending from the established identity
    selected in the platform. The first intended sender profile is
-   `saif@ibtechar.com`; later it may be changed to an INA Smart account.
+   `info@inasmart.com`; later it may be changed to another INA Smart account.
    Preserve originals and technical literals. The user's connected Gmail in
    ChatGPT is not automatically an OAuth grant for this app.
 4. Implement inbound quote extraction and technical review, with explicit

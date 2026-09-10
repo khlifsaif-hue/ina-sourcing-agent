@@ -62,7 +62,7 @@ Example: if the RFQ requires `23AWG Solid Bare Copper` and a supplier offers `CC
 
 - Seif Khelif
 - INA Smart – Procurement & Sourcing
-- khlif.saif@gmail.com
+- info@inasmart.com
 
 ## Setup
 

@@ -3,7 +3,7 @@ import { z } from "zod";
 const schema = z.object({
   DATABASE_URL: z.string().min(1),
   SUPPLIER_FROM_NAME: z.string().default("Seif Khlif"),
-  SUPPLIER_FROM_EMAIL: z.string().email().default("khlif.saif@gmail.com"),
+  SUPPLIER_FROM_EMAIL: z.string().email().default("info@inasmart.com"),
   SUPPLIER_COMPANY: z.string().default("INA Smart"),
   SUPPLIER_ROLE: z.string().default("Procurement & Sourcing"),
 });
