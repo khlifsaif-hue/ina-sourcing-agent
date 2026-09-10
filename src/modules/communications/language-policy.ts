@@ -1,6 +1,7 @@
 export type SupportedSupplierLanguage =
   | "en"
   | "zh-CN"
+  | "zh-TW"
   | "ar"
   | "tr"
   | "fr"
@@ -19,6 +20,7 @@ export type SupplierLanguageContext = {
   detectedLanguage?: string;
   country?: string;
   supplierPreferredLanguage?: string;
+  includeEnglishCopy?: boolean;
 };
 
 export type CommunicationLanguagePlan = {
@@ -49,15 +51,17 @@ const countryDefaults: Record<string, string> = {
 };
 
 export function resolveSupplierLanguage(context: SupplierLanguageContext): CommunicationLanguagePlan {
+  const countryLanguage = Object.entries(countryDefaults)
+    .find(([country]) => country.toLowerCase() === context.country?.trim().toLowerCase())?.[1];
   const supplierLanguage =
     context.supplierPreferredLanguage?.trim() ||
     context.detectedLanguage?.trim() ||
-    (context.country ? countryDefaults[context.country] : undefined) ||
+    countryLanguage ||
     "en";
 
   return {
     supplierLanguage,
-    includeEnglishCopy: supplierLanguage !== "en",
+    includeEnglishCopy: supplierLanguage !== "en" && context.includeEnglishCopy !== false,
     internalLanguage: "en",
     translationRequired: supplierLanguage !== "en",
   };

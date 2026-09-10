@@ -9,6 +9,7 @@ export type ProcurementAction =
   | "negotiate_lead_time"
   | "request_documents"
   | "request_sample_quote"
+  | "accept_specification_deviation"
   | "pay_sample"
   | "accept_final_price"
   | "issue_purchase_order"
@@ -27,14 +28,15 @@ const POLICY: Record<ProcurementAction, AuthorityDecision> = {
   negotiate_lead_time: "autonomous",
   request_documents: "autonomous",
   request_sample_quote: "autonomous",
+  accept_specification_deviation: "approval_required",
   pay_sample: "approval_required",
   accept_final_price: "approval_required",
   issue_purchase_order: "approval_required",
   make_payment: "prohibited",
 };
 
-export function getAuthorityDecision(action: ProcurementAction): AuthorityDecision {
-  return POLICY[action];
+export function getAuthorityDecision(action: string): AuthorityDecision {
+  return Object.hasOwn(POLICY, action) ? POLICY[action as ProcurementAction] : "prohibited";
 }
 
 export function assertAgentMayExecute(action: ProcurementAction): void {

@@ -12,7 +12,7 @@ export type SupplierScore = SupplierScoreInput & {
   eligibleForRecommendation: boolean;
 };
 
-const clamp = (value: number) => Math.max(0, Math.min(100, value));
+const clamp = (value: number) => Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0;
 
 export function rankSupplier(input: SupplierScoreInput): SupplierScore {
   const technicalCompliance = clamp(input.technicalCompliance);
@@ -22,7 +22,9 @@ export function rankSupplier(input: SupplierScoreInput): SupplierScore {
   const commercialTerms = clamp(input.commercialTerms);
 
   // Technical compliance is a gate, not merely a price-weighting factor.
-  const eligibleForRecommendation = !input.mandatoryDeviation && technicalCompliance >= 90;
+  const validScores = [input.technicalCompliance, input.landedCost, input.credibility, input.leadTime, input.commercialTerms]
+    .every((score) => Number.isFinite(score) && score >= 0 && score <= 100);
+  const eligibleForRecommendation = input.mandatoryDeviation === false && technicalCompliance >= 90 && validScores;
   const total =
     technicalCompliance * 0.35 +
     landedCost * 0.3 +
