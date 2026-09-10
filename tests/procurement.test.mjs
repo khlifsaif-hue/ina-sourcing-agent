@@ -13,6 +13,7 @@ import { getAuthorityDecision, assertAgentMayExecute } from "../src/modules/appr
 import { requiresHumanApproval } from "../src/modules/communications/state-machine.ts";
 import { resolveSupplierLanguage } from "../src/modules/communications/language-policy.ts";
 import { getReadiness } from "../src/modules/sourcing/readiness.ts";
+import { senderProfileInput, senderProfileNeedsConnection } from "../src/modules/communications/sender-profile.ts";
 
 const requirement = {
   productName: "CAT6 U/UTP cable", quantity: 500, unit: "305m box", recurring: true,
@@ -162,4 +163,17 @@ test("a reachable database cannot make the unfinished agent report ready", () =>
   assert.equal(getReadiness("ready").ready, false);
   assert.equal(getReadiness("unavailable").checks[0].status, "unavailable");
   assert.ok(getReadiness("ready").checks.some((check) => check.key === "translation" && check.status === "missing"));
+});
+
+test("sender profile is editable independently of Gmail OAuth credentials", () => {
+  const parsed = senderProfileInput.parse({
+    senderName: "Saif Khlif", senderEmail: " SAIF@IBTECHAR.COM ", companyName: "Ibtechar",
+    senderTitle: "Procurement & Sourcing", replyTo: "",
+  });
+  assert.equal(parsed.senderEmail, "saif@ibtechar.com");
+  assert.equal(parsed.replyTo, "");
+  assert.equal(senderProfileNeedsConnection("not_connected"), true);
+  assert.equal(senderProfileNeedsConnection("needs_reconnect"), true);
+  assert.equal(senderProfileNeedsConnection("connected"), false);
+  assert.equal(senderProfileInput.safeParse({ ...parsed, senderEmail: "not-an-email" }).success, false);
 });

@@ -91,6 +91,13 @@ change with what was tested, where it was saved and whether it was deployed.
 10. Updated Next.js and its ESLint configuration to 16.3.4, React/React DOM to
     19.3.0, and Drizzle ORM to 0.45.2. Added a lockfile, Node 24 requirement and
     ESLint configuration. Next.js builds without database credentials.
+11. Added a configurable sender-profile model and protected platform API. The
+    active sender can be changed later without code changes. It stores display
+    identity only; Gmail OAuth credentials are deliberately separate and no
+    inbound/outbound email is enabled until that connection is authorized.
+    The available connected Gmail profile was verified as `saif@ibtechar.com`.
+    That ChatGPT connector is not automatically transferable to the deployed
+    platform.
 
 Security references:
 - https://nextjs.org/blog/CVE-2025-66478
@@ -104,8 +111,10 @@ Security references:
    `SupplierSearchProvider`. Add a request execution endpoint, durable job state,
    idempotency and audited persistence. Reuse existing orchestrator modules.
 3. Implement translation and Gmail OAuth, sending from the established identity
-   `khlif.saif@gmail.com`. Preserve originals and technical literals. The user's
-   connected Gmail in ChatGPT is not automatically an OAuth grant for this app.
+   selected in the platform. The first intended sender profile is
+   `saif@ibtechar.com`; later it may be changed to an INA Smart account.
+   Preserve originals and technical literals. The user's connected Gmail in
+   ChatGPT is not automatically an OAuth grant for this app.
 4. Implement inbound quote extraction and technical review, with explicit
    missing-data/deviation states, price history, comparable landed cost and the
    authenticated comparison view.
@@ -141,6 +150,10 @@ Validation completed on 10 September 2026:
 
 - `npm run lint`: passed.
 - `npm test`: 18 passed, zero failed.
+- Sender-profile update validation: 19 tests passed, zero failed; lint and build
+  passed; `npm audit --omit=dev` remained clear. An additive database migration
+  is staged at `drizzle/0001_sender_profiles.sql` and has not been applied to
+  production.
 - `npm run build`: passed, including TypeScript checks, without database secrets.
 - `npm audit --omit=dev`: zero reported production dependency vulnerabilities.
 - `git diff --check`: passed.
