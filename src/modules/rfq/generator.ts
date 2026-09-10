@@ -18,7 +18,7 @@ export function generateRfq(requirement: SourcingRequirement, supplier: Supplier
     "Compliance against every mandatory specification",
     "Any deviation or alternative clearly identified",
     "EXW unit price",
-    "FOB unit price and named China/export port",
+    "FOB unit price and named export port",
     `CIF unit price to ${requirement.destinationCity}, ${requirement.destinationCountry}`,
     `DDP unit price to ${requirement.destinationCity}, ${requirement.destinationCountry}`,
     "MOQ",
