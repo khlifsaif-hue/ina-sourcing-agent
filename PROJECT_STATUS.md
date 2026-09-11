@@ -110,6 +110,10 @@ change with what was tested, where it was saved and whether it was deployed.
     Incoterm controls, lead-time and verified-factory filters, and a
     deterministic search-plan preview. It is intentionally a preparation UI
     until browser authentication and the bounded search runner are connected.
+14. Added a bounded Serper provider adapter and protected `/api/supplier-search`
+    preview route. It makes at most three source-targeted web requests per run,
+    never exposes the provider key to the browser, and returns discovery leads
+    only. It does not contact suppliers, claim verification, or persist leads.
 
 Security references:
 - https://nextjs.org/blog/CVE-2025-66478
