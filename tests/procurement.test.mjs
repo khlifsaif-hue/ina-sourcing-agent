@@ -14,6 +14,7 @@ import { requiresHumanApproval } from "../src/modules/communications/state-machi
 import { resolveSupplierLanguage } from "../src/modules/communications/language-policy.ts";
 import { getReadiness } from "../src/modules/sourcing/readiness.ts";
 import { senderProfileInput, senderProfileNeedsConnection } from "../src/modules/communications/sender-profile.ts";
+import { SerperSupplierSearchProvider, parseSupplierSearchChannels } from "../src/modules/sourcing/serper-provider.ts";
 
 const requirement = {
   productName: "CAT6 U/UTP cable", quantity: 500, unit: "305m box", recurring: true,
@@ -176,4 +177,18 @@ test("sender profile is editable independently of Gmail OAuth credentials", () =
   assert.equal(senderProfileNeedsConnection("needs_reconnect"), true);
   assert.equal(senderProfileNeedsConnection("connected"), false);
   assert.equal(senderProfileInput.safeParse({ ...parsed, senderEmail: "not-an-email" }).success, false);
+});
+
+test("Serper discovery is bounded, keeps the key server-side, and produces reviewable leads", async () => {
+  const requests = [];
+  const provider = new SerperSupplierSearchProvider("test-key", async (url, init) => {
+    requests.push({ url, init });
+    return new Response(JSON.stringify({ organic: [{ title: "Example Cable Manufacturer", link: "https://example.com/cat6", snippet: "OEM factory for CAT6 cables" }] }), { status: 200 });
+  }, ["alibaba", "direct-factories", "web", "indiamart"]);
+  const candidates = await provider.search({ product: "CAT6 cable", specifications: [{ key: "conductor", value: "bare copper", mandatory: true }], quantity: 100, destination: "Doha, Qatar" });
+  assert.equal(requests.length, 3);
+  assert.ok(requests.every(({ init }) => init.headers["X-API-KEY"] === "test-key" && init.cache === "no-store"));
+  assert.equal(candidates.length, 3);
+  assert.equal(candidates[0].claimedFactory, true);
+  assert.deepEqual(parseSupplierSearchChannels(["alibaba", "invalid", "web", "web"]), ["alibaba", "web"]);
 });
