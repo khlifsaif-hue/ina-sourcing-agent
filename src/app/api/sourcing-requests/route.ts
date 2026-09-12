@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import { desc } from "drizzle-orm";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/db/client";
 import { sourcingRequests } from "@/db/schema";
@@ -11,7 +11,7 @@ const createRequestSchema = z.object({
   recurring: z.boolean().default(false),
   destinationCountry: z.string().default("Qatar"),
   destinationCity: z.string().default("Doha"),
-  currency: z.string().length(3).default("USD"),
+  currency: z.string().length(3).transform((value) => value.toUpperCase()).default("USD"),
   notes: z.string().max(10000).optional(),
 });
 
@@ -34,9 +34,14 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   if (!isAuthorizedApiRequest(request)) return unauthorized();
 
-  const body = await request.json();
-  const parsed = createRequestSchema.safeParse(body);
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 
+  const parsed = createRequestSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
