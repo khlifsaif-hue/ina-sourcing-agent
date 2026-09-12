@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const schema = z.object({
   DATABASE_URL: z.string().min(1),
-  DIFY_API_KEY: z.string().min(24),
+  DIFY_API_KEY: z.string().min(24).optional(),
   SUPPLIER_FROM_NAME: z.string().default("Seif Khelif"),
   SUPPLIER_FROM_EMAIL: z.string().email().default("info@inasmart.com"),
   SUPPLIER_COMPANY: z.string().default("INA Smart"),
