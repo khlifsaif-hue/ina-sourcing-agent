@@ -15,10 +15,12 @@ export function isAuthorizedApiRequest(request: Request) {
 
   const authorization = request.headers.get("authorization");
   const apiKey = request.headers.get("x-api-key");
-  const suppliedKey = authorization?.startsWith("Bearer ")
+  const bearerKey = authorization?.startsWith("Bearer ")
     ? authorization.slice(7)
-    : apiKey;
+    : undefined;
 
-  if (!suppliedKey) return false;
-  return safeEqual(suppliedKey, configuredKey);
+  if (bearerKey && safeEqual(bearerKey, configuredKey)) return true;
+  if (apiKey && safeEqual(apiKey, configuredKey)) return true;
+
+  return false;
 }
