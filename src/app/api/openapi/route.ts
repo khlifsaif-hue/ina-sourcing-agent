@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     openapi: "3.0.3",
     info: {
       title: "INA Sourcing API",
-      version: "0.3.0",
+      version: "0.4.0",
       description: "Controlled API bridge for the INA Sourcing Agent.",
     },
     servers: [{ url: origin }],
@@ -143,6 +143,52 @@ export async function GET(request: Request) {
           responses: {
             "201": { description: "Supplier created" },
             "400": { description: "Invalid supplier" },
+            "401": { description: "Unauthorized" },
+          },
+        },
+      },
+      "/api/rfqs": {
+        get: {
+          operationId: "listRfqs",
+          summary: "List RFQs, optionally by sourcing request",
+          parameters: [
+            {
+              name: "sourcingRequestId",
+              in: "query",
+              required: false,
+              schema: { type: "string", format: "uuid" },
+            },
+          ],
+          responses: {
+            "200": { description: "RFQs" },
+            "400": { description: "Invalid request ID" },
+            "401": { description: "Unauthorized" },
+          },
+        },
+        post: {
+          operationId: "createRfq",
+          summary: "Create a structured RFQ record",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["sourcingRequestId"],
+                  properties: {
+                    sourcingRequestId: { type: "string", format: "uuid" },
+                    reference: { type: "string" },
+                    incotermRequested: { type: "string", default: "FOB" },
+                    paymentTermsRequested: { type: "string" },
+                    sampleRequested: { type: "boolean", default: true },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "201": { description: "RFQ created" },
+            "400": { description: "Invalid RFQ" },
             "401": { description: "Unauthorized" },
           },
         },
