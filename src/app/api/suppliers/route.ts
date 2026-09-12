@@ -2,16 +2,17 @@ import { desc } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/db/client";
-import { sourcingRequests } from "@/db/schema";
+import { suppliers } from "@/db/schema";
 import { isAuthorizedApiRequest } from "@/lib/api-auth";
 
-const createRequestSchema = z.object({
-  title: z.string().min(3),
-  targetQuantity: z.number().int().positive(),
-  recurring: z.boolean().default(false),
-  destinationCountry: z.string().default("Qatar"),
-  destinationCity: z.string().default("Doha"),
-  currency: z.string().length(3).transform((value) => value.toUpperCase()).default("USD"),
+const createSupplierSchema = z.object({
+  legalName: z.string().min(2),
+  tradingName: z.string().min(1).optional(),
+  country: z.string().min(2).optional(),
+  website: z.string().url().optional(),
+  supplierType: z.enum(["factory", "trader", "unknown"]).default("unknown"),
+  verifiedFactory: z.boolean().default(false),
+  certifications: z.array(z.string().min(1)).default([]),
   notes: z.string().max(10000).optional(),
 });
 
@@ -24,11 +25,11 @@ export async function GET(request: Request) {
 
   const rows = await db
     .select()
-    .from(sourcingRequests)
-    .orderBy(desc(sourcingRequests.createdAt))
-    .limit(100);
+    .from(suppliers)
+    .orderBy(desc(suppliers.createdAt))
+    .limit(250);
 
-  return NextResponse.json({ ok: true, requests: rows });
+  return NextResponse.json({ ok: true, suppliers: rows });
 }
 
 export async function POST(request: Request) {
@@ -41,15 +42,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const parsed = createRequestSchema.safeParse(body);
+  const parsed = createSupplierSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  const [created] = await db
-    .insert(sourcingRequests)
-    .values(parsed.data)
-    .returning();
-
-  return NextResponse.json({ ok: true, request: created }, { status: 201 });
+  const [created] = await db.insert(suppliers).values(parsed.data).returning();
+  return NextResponse.json({ ok: true, supplier: created }, { status: 201 });
 }
