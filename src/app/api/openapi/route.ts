@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     openapi: "3.0.3",
     info: {
       title: "INA Sourcing API",
-      version: "0.2.0",
+      version: "0.3.0",
       description: "Controlled API bridge for the INA Sourcing Agent.",
     },
     servers: [{ url: origin }],
@@ -20,12 +20,12 @@ export async function GET(request: Request) {
         },
       },
     },
+    security: [{ bearerAuth: [] }],
     paths: {
       "/api/sourcing-requests": {
         get: {
           operationId: "listSourcingRequests",
           summary: "List recent sourcing requests",
-          security: [{ bearerAuth: [] }],
           responses: {
             "200": { description: "Recent sourcing requests" },
             "401": { description: "Unauthorized" },
@@ -34,7 +34,6 @@ export async function GET(request: Request) {
         post: {
           operationId: "createSourcingRequest",
           summary: "Create and persist a sourcing request",
-          security: [{ bearerAuth: [] }],
           requestBody: {
             required: true,
             content: {
@@ -66,7 +65,6 @@ export async function GET(request: Request) {
         get: {
           operationId: "listSpecifications",
           summary: "List requirements for one sourcing request",
-          security: [{ bearerAuth: [] }],
           parameters: [
             {
               name: "sourcingRequestId",
@@ -84,7 +82,6 @@ export async function GET(request: Request) {
         post: {
           operationId: "createSpecification",
           summary: "Add a mandatory or optional product requirement",
-          security: [{ bearerAuth: [] }],
           requestBody: {
             required: true,
             content: {
@@ -114,7 +111,6 @@ export async function GET(request: Request) {
         get: {
           operationId: "listSuppliers",
           summary: "List supplier records",
-          security: [{ bearerAuth: [] }],
           responses: {
             "200": { description: "Suppliers" },
             "401": { description: "Unauthorized" },
@@ -123,7 +119,6 @@ export async function GET(request: Request) {
         post: {
           operationId: "createSupplier",
           summary: "Save a researched supplier or factory candidate",
-          security: [{ bearerAuth: [] }],
           requestBody: {
             required: true,
             content: {
@@ -148,6 +143,110 @@ export async function GET(request: Request) {
           responses: {
             "201": { description: "Supplier created" },
             "400": { description: "Invalid supplier" },
+            "401": { description: "Unauthorized" },
+          },
+        },
+      },
+      "/api/quotations": {
+        get: {
+          operationId: "listQuotations",
+          summary: "List quotations, optionally by sourcing request",
+          parameters: [
+            {
+              name: "sourcingRequestId",
+              in: "query",
+              required: false,
+              schema: { type: "string", format: "uuid" },
+            },
+          ],
+          responses: {
+            "200": { description: "Quotations" },
+            "400": { description: "Invalid request ID" },
+            "401": { description: "Unauthorized" },
+          },
+        },
+        post: {
+          operationId: "createQuotation",
+          summary: "Save a supplier quotation or normalized offer",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["sourcingRequestId", "supplierId"],
+                  properties: {
+                    sourcingRequestId: { type: "string", format: "uuid" },
+                    supplierId: { type: "string", format: "uuid" },
+                    rfqId: { type: "string", format: "uuid" },
+                    supplierQuoteRef: { type: "string" },
+                    currency: { type: "string", minLength: 3, maxLength: 3, default: "USD" },
+                    unitPrice: { oneOf: [{ type: "number" }, { type: "string" }] },
+                    moq: { type: "integer", minimum: 1 },
+                    incoterm: { type: "string" },
+                    leadTimeDays: { type: "integer", minimum: 0 },
+                    samplePrice: { oneOf: [{ type: "number" }, { type: "string" }] },
+                    paymentTerms: { type: "string" },
+                    validityDays: { type: "integer", minimum: 1 },
+                    rawOffer: { type: "object", additionalProperties: true },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "201": { description: "Quotation created" },
+            "400": { description: "Invalid quotation" },
+            "401": { description: "Unauthorized" },
+          },
+        },
+      },
+      "/api/evaluations": {
+        get: {
+          operationId: "listSupplierEvaluations",
+          summary: "List supplier scoring records, optionally by sourcing request",
+          parameters: [
+            {
+              name: "sourcingRequestId",
+              in: "query",
+              required: false,
+              schema: { type: "string", format: "uuid" },
+            },
+          ],
+          responses: {
+            "200": { description: "Supplier evaluations" },
+            "400": { description: "Invalid request ID" },
+            "401": { description: "Unauthorized" },
+          },
+        },
+        post: {
+          operationId: "createSupplierEvaluation",
+          summary: "Save technical and commercial supplier scores",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["supplierId"],
+                  properties: {
+                    supplierId: { type: "string", format: "uuid" },
+                    sourcingRequestId: { type: "string", format: "uuid" },
+                    technicalScore: { oneOf: [{ type: "number", minimum: 0, maximum: 100 }, { type: "string" }] },
+                    priceScore: { oneOf: [{ type: "number", minimum: 0, maximum: 100 }, { type: "string" }] },
+                    credibilityScore: { oneOf: [{ type: "number", minimum: 0, maximum: 100 }, { type: "string" }] },
+                    leadTimeScore: { oneOf: [{ type: "number", minimum: 0, maximum: 100 }, { type: "string" }] },
+                    commercialScore: { oneOf: [{ type: "number", minimum: 0, maximum: 100 }, { type: "string" }] },
+                    totalScore: { oneOf: [{ type: "number", minimum: 0, maximum: 100 }, { type: "string" }] },
+                    rationale: { type: "string", maxLength: 10000 },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "201": { description: "Supplier evaluation created" },
+            "400": { description: "Invalid evaluation" },
             "401": { description: "Unauthorized" },
           },
         },
