@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
+import { desc } from "drizzle-orm";
 import { z } from "zod";
+import { db } from "@/db/client";
+import { sourcingRequests } from "@/db/schema";
+import { isAuthorizedApiRequest } from "@/lib/api-auth";
 
 const createRequestSchema = z.object({
   title: z.string().min(3),
@@ -7,9 +11,29 @@ const createRequestSchema = z.object({
   recurring: z.boolean().default(false),
   destinationCountry: z.string().default("Qatar"),
   destinationCity: z.string().default("Doha"),
+  currency: z.string().length(3).default("USD"),
+  notes: z.string().max(10000).optional(),
 });
 
+function unauthorized() {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+}
+
+export async function GET(request: Request) {
+  if (!isAuthorizedApiRequest(request)) return unauthorized();
+
+  const rows = await db
+    .select()
+    .from(sourcingRequests)
+    .orderBy(desc(sourcingRequests.createdAt))
+    .limit(100);
+
+  return NextResponse.json({ ok: true, requests: rows });
+}
+
 export async function POST(request: Request) {
+  if (!isAuthorizedApiRequest(request)) return unauthorized();
+
   const body = await request.json();
   const parsed = createRequestSchema.safeParse(body);
 
@@ -17,11 +41,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  // DB persistence is intentionally added after DATABASE_URL is configured.
-  return NextResponse.json({
-    ok: true,
-    request: parsed.data,
-    status: "draft",
-    next: "persist-to-neon",
-  }, { status: 201 });
+  const [created] = await db
+    .insert(sourcingRequests)
+    .values(parsed.data)
+    .returning();
+
+  return NextResponse.json({ ok: true, request: created }, { status: 201 });
 }
