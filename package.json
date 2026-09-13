@@ -2,19 +2,24 @@
   "name": "ina-sourcing-agent",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --import ./tests/register.mjs --test tests/*.test.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
-    "drizzle-orm": "^0.44.5",
-    "next": "16.0.1",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
+    "drizzle-orm": "0.45.2",
+    "next": "16.3.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -23,7 +28,7 @@
     "@types/react-dom": "^19.2.2",
     "drizzle-kit": "^0.31.7",
     "eslint": "^9.39.1",
-    "eslint-config-next": "16.0.1",
+    "eslint-config-next": "16.3.4",
     "typescript": "^5.9.3"
   }
 }

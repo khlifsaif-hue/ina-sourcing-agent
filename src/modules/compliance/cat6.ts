@@ -1,7 +1,7 @@
 import type { ComplianceResult } from "./evaluate";
 
-const COPPER_TERMS = ["bare copper", "solid copper", "100% copper", "bc"];
-const NON_COPPER_TERMS = ["cca", "copper clad aluminum", "copper-clad aluminum", "ccs", "copper clad steel"];
+const COPPER = /\b(?:bare\s+copper|solid\s+copper|100\s*%\s*copper|bc)\b/i;
+const ALTERNATIVE_METAL = /\b(?:cca|ccs|copper[-\s]+clad[-\s]+(?:alumin(?:um|ium)|steel))\b/i;
 
 export type ConductorAssessment = {
   status: ComplianceResult["status"];
@@ -20,8 +20,12 @@ export function assessCat6Conductor(requested: string, offered?: string): Conduc
 
   const request = requested.toLowerCase();
   const offer = offered.toLowerCase();
-  const requiresCopper = COPPER_TERMS.some((term) => request.includes(term));
-  const containsAlternativeMetal = NON_COPPER_TERMS.some((term) => offer.includes(term));
+  const requiresCopper = COPPER.test(request) && !ALTERNATIVE_METAL.test(request);
+  const containsAlternativeMetal = ALTERNATIVE_METAL.test(offer);
+
+  if (!requiresCopper) {
+    return { status: "unknown", engineeringDecisionRequired: true, reason: "Clarify the required conductor material before using the bare/solid copper assessment." };
+  }
 
   if (requiresCopper && containsAlternativeMetal) {
     return {
@@ -31,7 +35,7 @@ export function assessCat6Conductor(requested: string, offered?: string): Conduc
     };
   }
 
-  const offeredCopper = COPPER_TERMS.some((term) => offer.includes(term));
+  const offeredCopper = COPPER.test(offer) && !/\b(?:not|non)[-\s]+(?:100\s*%\s*|solid\s+|bare\s+)?copper\b/.test(offer);
   if (requiresCopper && !offeredCopper) {
     return {
       status: "unknown",

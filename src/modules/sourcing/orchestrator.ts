@@ -42,8 +42,22 @@ export async function runSourcingOrchestrator(provider: SupplierSearchProvider, 
   const publishedPrices = qualified.filter((candidate) => candidate.price).length;
   const rfqRequired = qualified.length - publishedPrices;
 
+  if (qualified.length === 0) {
+    return {
+      stage: discovery.candidates.length ? "qualification" : "discovery",
+      status: "blocked",
+      requirementScore: assessment.completenessScore,
+      suppliersFound: discovery.candidates.length,
+      suppliersQualified: 0,
+      publishedPrices: 0,
+      rfqRequired: 0,
+      blockingQuestions: ["No qualified supplier is available. Review evidence or broaden the search."],
+      warnings: [...assessment.warnings, ...discovery.warnings],
+    };
+  }
+
   return {
-    stage: rfqRequired > 0 ? "rfq" : "qualification",
+    stage: rfqRequired > 0 ? "rfq" : "compliance",
     status: rfqRequired > 0 ? "awaiting-rfq" : "ready-for-review",
     requirementScore: assessment.completenessScore,
     suppliersFound: discovery.candidates.length,
@@ -51,6 +65,7 @@ export async function runSourcingOrchestrator(provider: SupplierSearchProvider, 
     publishedPrices,
     rfqRequired,
     blockingQuestions: [],
-    warnings: [...assessment.warnings, ...discovery.warnings],
+    warnings: [...assessment.warnings, ...discovery.warnings,
+      ...(publishedPrices ? ["Published prices are unverified leads. Confirm mandatory compliance, currency, quantity, unit and Incoterm before comparison."] : [])],
   };
 }

@@ -1,3 +1,5 @@
+import { rankSupplier } from "./rank";
+
 export type SupplierScoreInput = {
   technical: number;
   price: number;
@@ -6,21 +8,15 @@ export type SupplierScoreInput = {
   commercial: number;
 };
 
-const weights = {
-  technical: 0.35,
-  price: 0.25,
-  credibility: 0.15,
-  leadTime: 0.10,
-  commercial: 0.15,
-} as const;
-
+// Compatibility adapter. Ranking weights have a single source in rank.ts.
+// Use rankSupplier().eligibleForRecommendation when selecting a supplier.
 export function calculateSupplierScore(input: SupplierScoreInput): number {
-  const weighted =
-    input.technical * weights.technical +
-    input.price * weights.price +
-    input.credibility * weights.credibility +
-    input.leadTime * weights.leadTime +
-    input.commercial * weights.commercial;
-
-  return Math.round(weighted * 100) / 100;
+  return rankSupplier({
+    technicalCompliance: input.technical,
+    landedCost: input.price,
+    credibility: input.credibility,
+    leadTime: input.leadTime,
+    commercialTerms: input.commercial,
+    mandatoryDeviation: true,
+  }).total;
 }

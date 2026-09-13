@@ -2,6 +2,27 @@
 
 Standalone sourcing and procurement intelligence platform for INA Smart.
 
+## Current readiness
+
+**Development foundation; not an operational autonomous agent.** Read
+`PROJECT_STATUS.md` before continuing work. It records the verified deployment,
+database, existing modules and remaining integrations. A successful `/api/health`
+response means the web server is running, not that sourcing is functional.
+
+The data APIs now require a server-only `SOURCING_API_TOKEN` (at least 32 random
+characters) sent as `Authorization: Bearer <token>`. They fail closed when it is
+missing. This is service access for the single-owner foundation; it is not a
+replacement for the planned browser sign-in. Never expose this credential in
+client code, `NEXT_PUBLIC_*`, local storage, screenshots or logs.
+
+`GET /api/readiness` requires the same authorization, probes the runtime database,
+and returns HTTP 503 until all required capabilities are actually connected.
+`POST /api/supplier-discovery` currently qualifies supplied candidates only.
+
+For development checks, use Node 24 and run `npm ci`, `npm run lint`, `npm test`
+and `npm run build`. The build does not require production credentials. Regression
+tests use synthetic fixtures and make no supplier contact or database writes.
+
 ## Purpose
 
 The system is designed to manage the full sourcing lifecycle:
@@ -41,7 +62,7 @@ Example: if the RFQ requires `23AWG Solid Bare Copper` and a supplier offers `CC
 
 - Seif Khelif
 - INA Smart – Procurement & Sourcing
-- khlif.saif@gmail.com
+- info@inasmart.com
 
 ## Setup
 
@@ -54,7 +75,12 @@ Example: if the RFQ requires `23AWG Solid Bare Copper` and a supplier offers `CC
 npm install
 ```
 
-5. Generate/apply database migrations after validating the schema:
+5. The existing Neon database already has application tables. Inspect and baseline
+   its schema before creating migrations; do not create a second database or run
+   fresh create-table migrations on production. Test schema changes on a Neon
+   development branch, using its direct connection for migration operations.
+
+   For a new, empty development database only:
 
 ```bash
 npx drizzle-kit generate

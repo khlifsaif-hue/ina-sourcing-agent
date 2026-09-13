@@ -1,3 +1,5 @@
+import { getAuthorityDecision } from "@/modules/approvals/policy";
+
 export type SupplierContactStatus =
   | "published-price"
   | "rfq-required"
@@ -62,5 +64,15 @@ export const protectedCommercialActions = [
 ] as const;
 
 export function requiresHumanApproval(action: string): boolean {
-  return (protectedCommercialActions as readonly string[]).includes(action);
+  const aliases: Record<string, string> = {
+    "pay-sample": "pay_sample",
+    "accept-final-commercial-offer": "accept_final_price",
+    "issue-purchase-order": "issue_purchase_order",
+    "make-payment": "make_payment",
+    "accept-specification-deviation": "accept_specification_deviation",
+  };
+  const canonical = Object.hasOwn(aliases, action) ? aliases[action] : action;
+  // Unknown and prohibited operations also fail closed. Approval alone cannot
+  // enable a prohibited operation; callers must check getAuthorityDecision.
+  return getAuthorityDecision(canonical) !== "autonomous";
 }

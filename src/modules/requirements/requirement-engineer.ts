@@ -33,13 +33,19 @@ export function assessRequirement(requirement: SourcingRequirement): Requirement
   const blockingQuestions: string[] = [];
   const warnings: string[] = [];
   const mandatorySpecs = requirement.specifications.filter((spec) => spec.mandatory && spec.value.trim());
+  const validQuantity = Number.isSafeInteger(requirement.quantity) && requirement.quantity > 0;
+  const keys = requirement.specifications.map((spec) => spec.key.trim().toLowerCase());
+  if (new Set(keys).size !== keys.length) blockingQuestions.push("Resolve duplicate specification keys before supplier discovery.");
+  if (requirement.specifications.some((spec) => !spec.key.trim() || (spec.mandatory && !spec.value.trim()))) {
+    blockingQuestions.push("Every specification needs a key, and mandatory specifications need a value.");
+  }
 
   if (requirement.productName.trim().length < 3) blockingQuestions.push("Provide a specific product name/model/category.");
   if (vagueProductNames.has(requirement.productName.trim().toLowerCase()) && mandatorySpecs.length < 4) {
     blockingQuestions.push(`The product '${requirement.productName}' is too broad. Add the machine/product type and mandatory technical parameters before contacting suppliers.`);
   }
   if (mandatorySpecs.length < 3) blockingQuestions.push("Add at least three mandatory technical specifications so suppliers quote the same product basis.");
-  if (!requirement.quantity || requirement.quantity <= 0) blockingQuestions.push("Provide a valid sourcing quantity.");
+  if (!validQuantity) blockingQuestions.push("Provide a positive, whole sourcing quantity.");
   if (!requirement.destinationCountry.trim()) blockingQuestions.push("Provide the destination country.");
   if (!requirement.requestedIncoterms.length) warnings.push("No Incoterm requested; EXW/FOB/CIF/DDP comparison is recommended.");
   if (!requirement.sampleRequired) warnings.push("Sample is not requested; consider requiring one for a new supplier or technically critical product.");
@@ -47,7 +53,7 @@ export function assessRequirement(requirement: SourcingRequirement): Requirement
   const checks = [
     requirement.productName.trim().length >= 3,
     mandatorySpecs.length >= 3,
-    requirement.quantity > 0,
+    validQuantity,
     Boolean(requirement.destinationCountry.trim()),
     requirement.requestedIncoterms.length > 0,
     requirement.supplierQuestions.length > 0,
