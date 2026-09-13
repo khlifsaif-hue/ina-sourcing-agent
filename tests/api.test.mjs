@@ -7,6 +7,7 @@ import { GET as getSenderProfile, PUT as putSenderProfile } from "../src/app/api
 import { POST as startGmail } from "../src/app/api/integrations/gmail/start/route.ts";
 import { GET as gmailStatus } from "../src/app/api/integrations/gmail/status/route.ts";
 import { POST as supplierSearch } from "../src/app/api/supplier-search/route.ts";
+import { GET as getOpenApi } from "../src/app/api/openapi/route.ts";
 
 const token = "test-only-credential-012345678901234567890";
 const request = (path, body, authorized = true) => new Request(`https://agent.example/api/${path}`, {
@@ -20,6 +21,18 @@ test("API access rejects missing configuration, wrong credentials, and missing c
   assert.equal(checkApiAccess(r, token).status, 401);
   assert.equal(checkApiAccess(request("test", "{}"), token), null);
   assert.equal(checkApiAccess(request("test", "{}"), `${token}wrong`).status, 401);
+});
+
+test("the published OpenAPI contract contains only current sourcing routes and no credentials", async () => {
+  const response = await getOpenApi();
+  assert.equal(response.status, 200);
+  const contract = await response.json();
+  assert.equal(contract.openapi, "3.0.3");
+  assert.ok(contract.paths["/api/supplier-search"]);
+  assert.ok(contract.paths["/api/sourcing-requests"]);
+  assert.equal(contract.paths["/api/suppliers"], undefined);
+  assert.equal(contract.paths["/api/rfqs"], undefined);
+  assert.equal(JSON.stringify(contract).includes("SOURCING_API_TOKEN"), false);
 });
 
 test("data APIs authenticate before database configuration is evaluated", async () => {
