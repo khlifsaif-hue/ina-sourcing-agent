@@ -12,6 +12,16 @@ export type SupplierScore = SupplierScoreInput & {
   eligibleForRecommendation: boolean;
 };
 
+// Single source of truth for supplier ranking.
+// Technical compliance remains both the highest weighted factor and a hard gate.
+export const supplierScoreWeights = {
+  technicalCompliance: 0.35,
+  landedCost: 0.30,
+  credibility: 0.15,
+  leadTime: 0.10,
+  commercialTerms: 0.10,
+} as const;
+
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
 
 export function rankSupplier(input: SupplierScoreInput): SupplierScore {
@@ -21,14 +31,15 @@ export function rankSupplier(input: SupplierScoreInput): SupplierScore {
   const leadTime = clamp(input.leadTime);
   const commercialTerms = clamp(input.commercialTerms);
 
-  // Technical compliance is a gate, not merely a price-weighting factor.
+  // A cheaper offer can never compensate for a mandatory technical deviation.
   const eligibleForRecommendation = !input.mandatoryDeviation && technicalCompliance >= 90;
+
   const total =
-    technicalCompliance * 0.35 +
-    landedCost * 0.3 +
-    credibility * 0.15 +
-    leadTime * 0.1 +
-    commercialTerms * 0.1;
+    technicalCompliance * supplierScoreWeights.technicalCompliance +
+    landedCost * supplierScoreWeights.landedCost +
+    credibility * supplierScoreWeights.credibility +
+    leadTime * supplierScoreWeights.leadTime +
+    commercialTerms * supplierScoreWeights.commercialTerms;
 
   return {
     ...input,
