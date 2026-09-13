@@ -1,4 +1,4 @@
-# INA Sourcing Agent — implementation checkpoint
+# INA Sourcing Agent â implementation checkpoint
 
 Audited: 10 September 2026. Goal: turn a precise sourcing request into researched
 factory/supplier candidates, communicate in each supplier's language, obtain real
@@ -102,7 +102,7 @@ change with what was tested, where it was saved and whether it was deployed.
     a sender profile, Google consent uses a short-lived hashed state and PKCE,
     and access/refresh tokens are AES-256-GCM encrypted at rest. The callback
     rejects a Google account that does not exactly match the selected sender
-    email. It exposes status only—never token values. This is deliberately not
+    email. It exposes status onlyânever token values. This is deliberately not
     yet email delivery or inbox processing.
 13. Added a fast sourcing workspace at `/sourcing`. It provides reusable
     templates, source-channel selection (Alibaba, Made-in-China, Global
@@ -114,6 +114,11 @@ change with what was tested, where it was saved and whether it was deployed.
     preview route. It makes at most three source-targeted web requests per run,
     never exposes the provider key to the browser, and returns discovery leads
     only. It does not contact suppliers, claim verification, or persist leads.
+15. Added `/api/openapi`, the versioned INA Sourcing API contract for external
+    tools such as Dify. It advertises only implemented routes (health, readiness,
+    sourcing requests, bounded supplier search and candidate qualification) and
+    bearer authentication. The prior Dify schema advertised unimplemented
+    supplier/RFQ/quotation paths and must be replaced after deployment.
 
 Security references:
 - https://nextjs.org/blog/CVE-2025-66478
@@ -180,7 +185,7 @@ Validation completed on 10 September 2026:
 - These source changes have not been deployed. The live observations above
   continue to describe the deployment inspected in this audit.
 
-## Latest deployment milestone — 10 September 2026
+## Latest deployment milestone â 10 September 2026
 
 - Both additive migrations were validated on disposable Neon branches and
   applied to production branch `br-quiet-shape-b1o27py9`.
